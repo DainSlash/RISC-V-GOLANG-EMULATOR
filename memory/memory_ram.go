@@ -1,13 +1,29 @@
 package memory
 
-type Byte int8
-
 const RAM_SIZE = 0xFFFFFF // 16 MB
-
 type RAM struct {
-	memory [RAM_SIZE]Byte
+	data []Byte
 }
 
-func (ram *RAM) ReadByte(address uint32) Byte{
-	return Byte(ram.memory[address])
+func NewRAM(size uint32) *RAM {
+	return &RAM{
+		data: make([]Byte, size),
+	}
+}
+
+func (r *RAM) Size() uint32 {
+	return uint32(len(r.data))
+}
+
+func (r *RAM) ReadByte(offset uint32) Byte {
+	if offset >= uint32(len(r.data)) {
+		return 0
+	}
+	return r.data[offset]
+}
+
+func (r *RAM) WriteByte(offset uint32, data Byte) {
+	if offset < uint32(len(r.data)) {
+		r.data[offset] = data
+	}
 }

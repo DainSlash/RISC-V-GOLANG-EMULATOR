@@ -2,20 +2,18 @@ package cpu
 
 type ExecFn func(cpu *CPU, inst Instruction)
 
-
 var FuncTable = map[InstrType]ExecFn{
 	R_TYPE: execRType,
 	I_TYPE: execIType,
-// 	S_TYPE: execSType,
-// 	B_TYPE: execBType,
-// 	U_TYPE: execUType,
-// 	J_TYPE: execJType,
+	S_TYPE: execSType,
+	B_TYPE: execBType,
+	U_TYPE: execUType,
+	J_TYPE: execJType,
 }
 
 // ======================================
 // R-TYPE
 // ======================================
-
 var rTypeTable = map[uint8]map[uint8]ExecFn{
 	0x0: {
 		0x00: execADD,
@@ -58,21 +56,29 @@ func execRType(cpu *CPU, inst Instruction) {
 // ======================================
 
 var iTypeTable = map[uint8]ExecFn{
-	0x13: execIArith,  // OP-IMM: ADDI, SLTI, ...
-	0x03: execILoad,   // LOAD: LB, LH, LW, LBU, LHU
-	0x67: execIJALR,   // JALR
-	0x73: execISystem, // ECALL/EBREAK
+	0x13: execIArith,
+	0x03: execILoad,
+	0x67: execIJALR,
+	0x73: execISystem,
 }
 
 var iArithTable = map[uint8]ExecFn{
-	0x0: execADDI,          // ADDI
-	0x2: execSLTI,          // SLTI
-	0x3: execSLTIU,         // SLTIU
-	0x4: execXORI,          // XORI
-	0x6: execORI,           // ORI
-	0x7: execANDI,          // ANDI
-	0x1: execSLLI,          // SLLI
-	0x5: execShiftRightImm, // SRLI/SRAI (decidido por imm[11:5])
+	0x0: execADDI,
+	0x2: execSLTI,
+	0x3: execSLTIU,
+	0x4: execXORI,
+	0x6: execORI,
+	0x7: execANDI,
+	0x1: execSLLI,
+	0x5: execShiftRightImm,
+}
+
+var iLoadTable = map[uint8]ExecFn{
+	0x0: execLB,
+	0x1: execLH,
+	0x2: execLW,
+	0x4: execLBU,
+	0x5: execLHU,
 }
 
 func execIType(cpu *CPU, inst Instruction) {
@@ -87,7 +93,74 @@ func execIArith(cpu *CPU, inst Instruction) {
 	}
 }
 
-func execILoad(cpu *CPU, inst Instruction)   {}
-func execIJALR(cpu *CPU, inst Instruction)   {}
-func execISystem(cpu *CPU, inst Instruction) {}
+func execILoad(cpu *CPU, inst Instruction) {
+	if fn, ok := iLoadTable[inst.Funct3]; ok {
+		fn(cpu, inst)
+	}
+}
 
+func execIJALR(cpu *CPU, inst Instruction) {
+	execJALR(cpu, inst)
+}
+
+func execISystem(cpu *CPU, inst Instruction) {
+	// TODO: Implementar chamadas de sistema (ECALL)
+}
+
+// ======================================
+// S-TYPE
+// ======================================
+
+var sTypeTable = map[uint8]ExecFn{
+	0x0: execSB,
+	0x1: execSH,
+	0x2: execSW,
+}
+
+func execSType(cpu *CPU, inst Instruction) {
+	if fn, ok := sTypeTable[inst.Funct3]; ok {
+		fn(cpu, inst)
+	}
+}
+
+// ======================================
+// B-TYPE
+// ======================================
+
+var bTypeTable = map[uint8]ExecFn{
+	0x0: execBEQ,
+	0x1: execBNE,
+	0x4: execBLT,
+	0x5: execBGE,
+	0x6: execBLTU,
+	0x7: execBGEU,
+}
+
+func execBType(cpu *CPU, inst Instruction) {
+	if fn, ok := bTypeTable[inst.Funct3]; ok {
+		fn(cpu, inst)
+	}
+}
+
+// ======================================
+// U-TYPE
+// ======================================
+
+var uTypeTable = map[uint8]ExecFn{
+	0x37: execLUI,
+	0x17: execAUIPC,
+}
+
+func execUType(cpu *CPU, inst Instruction) {
+	if fn, ok := uTypeTable[inst.Opcode]; ok {
+		fn(cpu, inst)
+	}
+}
+
+// ======================================
+// J-TYPE
+// ======================================
+
+func execJType(cpu *CPU, inst Instruction) {
+	execJAL(cpu, inst)
+}
