@@ -2,7 +2,7 @@ package cpu
 
 import (
 	"fmt"
-    "github.com/DainSlash/RISC-V-GOLANG-EMULATOR/memory"
+    "github.com/DainSlash/RISC-V-GOLANG-EMULATOR/bus"
 )
 
 type RegisterValue int32;
@@ -10,7 +10,18 @@ type CPU struct {
 	Registers [32]RegisterValue
 	PC RegisterValue
 	AddressAdder int32
-	ram memory.RAM // Vai ser substituido por uma interface de barramento dedicado que acessa memoria
+	rdInterface bus.ReaderWriter
+}
+
+
+func NewCPU(b bus.ReaderWriter) *CPU {
+	return &CPU{
+		Registers:		[32]RegisterValue{},
+		PC:				0,
+		AddressAdder:   0,
+		rdInterface:	b,
+
+	}
 }
 
 func (cpu *CPU) Step() {
@@ -18,7 +29,7 @@ func (cpu *CPU) Step() {
 	// Executar a instrução da memoria, e ir para o proximo pc.
 
 	cpu.AddressAdder = 4
-	var raw uint32 = cpu.Fetch(cpu.ram, cpu.PC)
+	var raw uint32 = cpu.Fetch()
     inst := cpu.Decode(raw)
 	
 	fmt.Printf("Opcode:  0x%02X\n", inst.Opcode)
@@ -50,14 +61,21 @@ func (cpu *CPU) writeReg(rd RegisterAddress, v RegisterValue) {
 	}
 }
 
-func (cpu *CPU) Fetch(ram memory.RAM, pc RegisterValue) uint32 {
-	result := uint32(ram.ReadByte(uint32(pc)))
-	result |= uint32(ram.ReadByte(uint32(pc)+1)) << 8
-	result |= uint32(ram.ReadByte(uint32(pc)+2)) << 16
-	result |= uint32(ram.ReadByte(uint32(pc)+3)) << 24
+func (cpu *CPU) Fetch() uint32 {
+	pc := cpu.PC
+	rdInterface := cpu.rdInterface
+
+	result := uint32(rdInterface.ReadByte(uint32(pc)))
+	result |= uint32(rdInterface.ReadByte(uint32(pc)+1)) << 8
+	result |= uint32(rdInterface.ReadByte(uint32(pc)+2)) << 16
+	result |= uint32(rdInterface.ReadByte(uint32(pc)+3)) << 24
 	return result
 }
 
 func (cpu *CPU) nextPC(adder int32) {
 	cpu.PC = RegisterValue(int32(cpu.PC) + adder)
+}
+
+func (cpu *CPU) SetPC(addr uint32) {
+	cpu.PC = RegisterValue(int32(addr))
 }

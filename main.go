@@ -30,6 +30,6 @@ func main() {
     
     
     for _, element := range programa {
-        cpu.Step(element)
+        cpu.Step()
     }
 }

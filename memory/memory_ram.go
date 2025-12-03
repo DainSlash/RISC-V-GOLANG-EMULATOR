@@ -1,6 +1,5 @@
 package memory
 
-const RAM_SIZE = 0xFFFFFF // 16 MB
 type RAM struct {
 	data []Byte
 }
