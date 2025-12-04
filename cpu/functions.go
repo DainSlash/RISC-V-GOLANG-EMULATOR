@@ -9,165 +9,162 @@ import (
 // ======================================
 
 func execADD(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(a+b)
-
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(a + b)
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSUB(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(a-b)
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(a - b)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSLL(cpu *CPU, inst Instruction) {
-	shamt 			:= uint32(cpu.Registers[inst.Rs2]) & 0x1F // 0b11111
-	value 			:= uint32(cpu.Registers[inst.Rs1])
-	result 			:= RegisterValue(value << shamt)
-	
+	shamt := uint32(cpu.Registers[inst.Rs2]) & 0x1F // 0b11111
+	value := uint32(cpu.Registers[inst.Rs1])
+	result := RegisterValue(value << shamt)
+
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSLT(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(0)
-	
-	if (a<b) {
-		result 		= RegisterValue(1)
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(0)
+
+	if a < b {
+		result = RegisterValue(1)
 	}
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSLTU(cpu *CPU, inst Instruction) {
-	a 				:= uint32(cpu.Registers[inst.Rs1])
-	b 				:= uint32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(0)
-	
+	a := uint32(cpu.Registers[inst.Rs1])
+	b := uint32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(0)
+
 	if a < b {
-		result 		= RegisterValue(1)
+		result = RegisterValue(1)
 	}
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execXOR(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(a^b)
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(a ^ b)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSRL(cpu *CPU, inst Instruction) {
-	shamt 			:= uint32(cpu.Registers[inst.Rs2]) & 0x1F
-	value 			:= uint32(cpu.Registers[inst.Rs1])
-	result 			:= RegisterValue(value >> shamt)
+	shamt := uint32(cpu.Registers[inst.Rs2]) & 0x1F
+	value := uint32(cpu.Registers[inst.Rs1])
+	result := RegisterValue(value >> shamt)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSRA(cpu *CPU, inst Instruction) {
-	shamt 			:= uint32(cpu.Registers[inst.Rs2]) & 0x1F
-	value 			:= int32(cpu.Registers[inst.Rs1])
-	result 			:= RegisterValue(value >> shamt)
+	shamt := uint32(cpu.Registers[inst.Rs2]) & 0x1F
+	value := int32(cpu.Registers[inst.Rs1])
+	result := RegisterValue(value >> shamt)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execOR(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(a|b)
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(a | b)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execAND(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	b 				:= int32(cpu.Registers[inst.Rs2])
-	result 			:= RegisterValue(a&b)
+	a := int32(cpu.Registers[inst.Rs1])
+	b := int32(cpu.Registers[inst.Rs2])
+	result := RegisterValue(a & b)
 
 	cpu.writeReg(inst.Rd, result)
 }
-
 
 // ======================================
 // I-TYPE
 // ======================================
 
-
 // ADDI  rd = rs1 + imm
 func execADDI(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	imm 			:= int32(inst.Imm)
-	result 			:= RegisterValue(a+imm)
+	a := int32(cpu.Registers[inst.Rs1])
+	imm := int32(inst.Imm)
+	result := RegisterValue(a + imm)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSLTI(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	imm 			:= int32(inst.Imm)
-	result 			:= RegisterValue(0)
+	a := int32(cpu.Registers[inst.Rs1])
+	imm := int32(inst.Imm)
+	result := RegisterValue(0)
 
 	if a < imm {
-		result 		= RegisterValue(1)
+		result = RegisterValue(1)
 	}
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execSLTIU(cpu *CPU, inst Instruction) {
-	a 				:= uint32(cpu.Registers[inst.Rs1])
-	imm 			:= uint32(inst.Imm)
-	result 			:= RegisterValue(0)
+	a := uint32(cpu.Registers[inst.Rs1])
+	imm := uint32(inst.Imm)
+	result := RegisterValue(0)
 
 	if a < imm {
-		result 		= RegisterValue(1)
+		result = RegisterValue(1)
 	}
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execXORI(cpu *CPU, inst Instruction) {
-	a 				:= int32(cpu.Registers[inst.Rs1])
-	imm 			:= int32(inst.Imm)
-	result 			:= RegisterValue(a^imm)
+	a := int32(cpu.Registers[inst.Rs1])
+	imm := int32(inst.Imm)
+	result := RegisterValue(a ^ imm)
 
 	cpu.writeReg(inst.Rd, result)
 }
 
 func execORI(cpu *CPU, inst Instruction) {
-	a 				:= RegisterValue(cpu.Registers[inst.Rs1])
-	imm 			:= RegisterValue(inst.Imm)
+	a := RegisterValue(cpu.Registers[inst.Rs1])
+	imm := RegisterValue(inst.Imm)
 
 	cpu.writeReg(inst.Rd, a|imm)
 }
 
 func execANDI(cpu *CPU, inst Instruction) {
-	a 				:= RegisterValue(cpu.Registers[inst.Rs1])
-	imm 			:= RegisterValue(inst.Imm)
+	a := RegisterValue(cpu.Registers[inst.Rs1])
+	imm := RegisterValue(inst.Imm)
 
 	cpu.writeReg(inst.Rd, a&imm)
 }
 
 func execSLLI(cpu *CPU, inst Instruction) {
-	shamt 			:= uint32(inst.Imm) & 0x1F
-	val 			:= uint32(cpu.Registers[inst.Rs1])
-	
+	shamt := uint32(inst.Imm) & 0x1F
+	val := uint32(cpu.Registers[inst.Rs1])
+
 	cpu.writeReg(inst.Rd, RegisterValue(val<<shamt))
 }
 
 func execShiftRightImm(cpu *CPU, inst Instruction) {
-	imm   			:= uint32(inst.Imm)
-	shamt 			:= imm & 0x1F
-	top7  			:= (imm >> 5) & 0x7F
+	imm := uint32(inst.Imm)
+	shamt := imm & 0x1F
+	top7 := (imm >> 5) & 0x7F
 
 	switch top7 {
 	case 0x00:
@@ -296,15 +293,15 @@ func execAUIPC(cpu *CPU, inst Instruction) {
 func execJAL(cpu *CPU, inst Instruction) {
 	nextInstrPC := int32(cpu.PC) + 4
 	cpu.writeReg(inst.Rd, RegisterValue(nextInstrPC))
-	
+
 	cpu.AddressAdder = int32(inst.Imm)
 }
 
 func execJALR(cpu *CPU, inst Instruction) {
 	nextInstrPC := int32(cpu.PC) + 4
 	cpu.writeReg(inst.Rd, RegisterValue(nextInstrPC))
-	
+
 	target := (int32(cpu.Registers[inst.Rs1]) + inst.Imm) & ^1
-	
+
 	cpu.AddressAdder = target - int32(cpu.PC)
 }

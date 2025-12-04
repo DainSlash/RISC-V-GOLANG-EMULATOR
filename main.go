@@ -1,35 +1,35 @@
 package main
 
 import (
-    "fmt"
-    "github.com/DainSlash/RISC-V-GOLANG-EMULATOR/cpu"
+	"fmt"
+
+	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/memory"
+	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/motherboard"
 )
 
 func main() {
-    fmt.Println("RISC-V Emulator iniciado!")
-    
-    var cpu cpu.CPU
 
-    cpu.Registers[1] = 10
-    cpu.Registers[2] = 3
-    cpu.Registers[3] = 6
+	fmt.Println("RISC-V Emulator iniciado!")
 
-    // programa := [...]uint32{
-    //     0b0000000_00010_00001_000_00011_011_0011, // 10+3
-    //     0b0000000_00001_00011_000_00011_011_0011, // 13 + 10
-    //     0b0000000_00001_00011_000_00011_011_0011, // 23 + 10
-    //     0b0000000_00001_00011_000_00011_011_0011, // 33 + 10
-    //     0b0000000_00001_00011_000_00011_011_0011, // 43 + 10
-    //     0b0000000_00001_00011_000_00011_011_0011, // 53 + 10
-    // }
+	programas := []memory.Byte{
+		0b10110011,
+		0b10000001,
+		0b00100000,
+		0b00000000,
+		// soma R1 + R2 -> R3
+	}
 
-    programa := [...]uint32{
-        0b0000000_00010_00001_001_00011_011_0011, // 10+3
-    }
+	mainboard := motherboard.NewMotherboard(motherboard.DefaultRAMSize, memory.BootProgram())
 
-    
-    
-    for _, element := range programa {
-        cpu.Step()
-    }
+	for i := 0; i < len(programas); i++ {
+		b := mainboard.ROM.ReadByte(uint32(i))
+		fmt.Printf("ROM[%d] = %08b (0x%02X)\n", i, b, b)
+	}
+
+	mainboard.IntialBOOT()
+	mainboard.CPU.Registers[1] = 10
+	mainboard.CPU.Registers[2] = 3
+	mainboard.CPU.Registers[3] = 6
+	mainboard.CPU.Step()
+
 }
