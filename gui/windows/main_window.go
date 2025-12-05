@@ -114,6 +114,7 @@ func (mw *MainWindow) createToolbar(onOpenTests func(), onLoadCartridge func(str
 
 	btnStep := widget.NewButtonWithIcon("Step", theme.MediaSkipNextIcon(), func() {
 		mw.stepCPU()
+		mw.Terminal.CheckOutput()
 		mw.UpdateUI(true)
 	})
 
