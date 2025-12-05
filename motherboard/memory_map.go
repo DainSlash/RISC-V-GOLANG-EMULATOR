@@ -1,7 +1,19 @@
 package motherboard
 
 const (
-	DefaultRAMBase = 0x00000000
-	DefaultRAMSize = 16 * 1024 * 1024
-	MAXADDRESS     = 0xFFFFFFFF
+    // (RAM)
+    RAM_START = 0x00000000
+    RAM_LIMIT = 0x0007FFFF 
+
+    // VRAM
+    VRAM_START = 0x00080000
+    VRAM_LIMIT = 0x0008FFFF
+
+    // CARTUCHOS
+    CARTRIDGE_START = 0x00090000
+    
+    // IO
+    IO_START = 0x0009FC00
+    
+    BIOS_START = 0x80000000 
 )

@@ -1,12 +1,11 @@
 package cpu
 
 import (
-	"fmt"
 
 	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/bus"
 )
 
-type RegisterValue int32
+type RegisterValue uint32
 type CPU struct {
 	Registers    [32]RegisterValue
 	PC           RegisterValue
@@ -30,27 +29,32 @@ func (cpu *CPU) Step() {
 	cpu.AddressAdder = 4
 	var raw uint32 = cpu.Fetch()
 	inst := cpu.Decode(raw)
-	fmt.Printf("\ninst: %b\n", inst)
-
-	fmt.Printf("Opcode:  0x%02X\n", inst.Opcode)
-	fmt.Printf("Type:    %v\n", inst.Type)
-	fmt.Printf("Rd:      %08b\n", inst.Rd)
-	fmt.Printf("Rs1:     %08b\n", inst.Rs1)
-	fmt.Printf("Rs2:     %08b\n", inst.Rs2)
-	fmt.Printf("Funct3:  %08b\n", inst.Funct3)
-	fmt.Printf("Funct7:  %08b\n", inst.Funct7)
-	fmt.Printf("Imm:     %032b\n", inst.Imm)
+	
+	// fmt.Printf("\ninst: %b\n", inst)
+	// fmt.Printf("Opcode:  0x%02X\n", inst.Opcode)
+	// fmt.Printf("Type:    %v\n", inst.Type)
+	// fmt.Printf("Rd:      %08b\n", inst.Rd)
+	// fmt.Printf("Rs1:     %08b\n", inst.Rs1)
+	// fmt.Printf("Rs2:     %08b\n", inst.Rs2)
+	// fmt.Printf("Funct3:  %08b\n", inst.Funct3)
+	// fmt.Printf("Funct7:  %08b\n", inst.Funct7)
+	// fmt.Printf("Imm:     %032b\n", inst.Imm)
 
 	cpu.Execute(inst)
 	cpu.nextPC(cpu.AddressAdder)
 
-	fmt.Printf("CPU Rs1:   %d\n", cpu.Registers[inst.Rs1])
-	fmt.Printf("CPU Rs2:   %d\n", cpu.Registers[inst.Rs2])
-	fmt.Printf("CPU Rd:    %d\n", cpu.Registers[inst.Rd])
+	// fmt.Printf("CPU Rs1:   %d\n", cpu.Registers[inst.Rs1])
+	// fmt.Printf("CPU Rs2:   %d\n", cpu.Registers[inst.Rs2])
+	// fmt.Printf("CPU Rd:    %d\n", cpu.Registers[inst.Rd])
 }
 
 func (cpu *CPU) Execute(inst Instruction) {
-	handler := FuncTable[inst.Type]
+	handler, existe := FuncTable[inst.Type]
+	
+	if !existe {
+		return
+	}
+
 	handler(cpu, inst)
 }
 
@@ -68,7 +72,7 @@ func (cpu *CPU) Fetch() uint32 {
 	result |= uint32(rdInterface.ReadByte(uint32(pc)+1)) << 8
 	result |= uint32(rdInterface.ReadByte(uint32(pc)+2)) << 16
 	result |= uint32(rdInterface.ReadByte(uint32(pc)+3)) << 24
-	fmt.Printf("\n %032b\n", result)
+	// fmt.Printf("\n %032b\n", result)
 	return result
 }
 

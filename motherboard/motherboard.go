@@ -1,58 +1,61 @@
 package motherboard
 
 import (
+	"fmt"
 	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/bus"
 	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/cpu"
 	"github.com/DainSlash/RISC-V-GOLANG-EMULATOR/memory"
 )
 
 type Motherboard struct {
-	CPU *cpu.CPU
-	Bus *bus.Bus
-
-	RAMs []*memory.RAM
-	ROM  *memory.ROM
-
-	// TODO ::
-	// VRAM *memory.RAM
-	// HDs  []*memory.Disk
-	// GPU  *gpu.GPU
+	CPU  *cpu.CPU
+	Bus  *bus.Bus
+	
+	// Componentes
+	RAM  *memory.RAM
+	VRAM *memory.VRAM
+	BIOS *memory.ROM
+	Cartridge *memory.ROM
 }
 
-func NewMotherboard(ramSize uint32, bootImage []memory.Byte) *Motherboard {
-	if ramSize == 0 {
-		ramSize = DefaultRAMSize
+
+func NewMotherboard(biosPath string) (*Motherboard, error) {
+	systemBus := bus.NewBus()
+
+	bios, err := memory.NewROMFromFile(biosPath)
+	if err != nil {
+		return nil, err
 	}
 
-	bus := bus.NewBus()
-	mainRAM := memory.NewRAM(ramSize)
-	rom := memory.NewROM(bootImage)
-	cpu := cpu.NewCPU(bus)
+	mainRAM := memory.NewRAM(RAM_LIMIT - RAM_START + 1)
+	videoRAM := memory.NewVRAM(VRAM_LIMIT - VRAM_START + 1)
 
-	result := &Motherboard{}
-	result.Bus = bus
-	result.ROM = rom
-	result.RAMs = []*memory.RAM{mainRAM}
-	result.CPU = cpu
+	systemBus.MapDevice(RAM_START, mainRAM)
+	systemBus.MapDevice(VRAM_START, videoRAM)
+	systemBus.MapDevice(BIOS_START, bios)
 
-	result.Bus.MapDevice(DefaultRAMBase, mainRAM)
-	result.Bus.MapDevice(result.GetRamSize(), rom)
 
-	return result
+	core := cpu.NewCPU(systemBus)
+	core.PC = cpu.RegisterValue(BIOS_START) 
+
+	mb := &Motherboard{
+		CPU:  core,
+		Bus:  systemBus,
+		RAM:  mainRAM,
+		VRAM: videoRAM,
+		BIOS: bios,
+	}
+
+	return mb, nil
 }
 
-func (mb *Motherboard) GetRamSize() uint32 {
-	var result uint32 = 0
 
-	for _, ram := range mb.RAMs {
-		result += ram.Size()
-	}
-
-	return result
-}
-
-func (mb *Motherboard) IntialBOOT() {
-	for i := uint32(0); i < mb.ROM.Size(); i++ {
-		mb.Bus.WriteByte(i, mb.ROM.ReadByte(i))
-	}
+func (mb *Motherboard) InsertCartridge(path string) error {
+	cart, err := memory.NewROMFromFile(path)
+	if err != nil { return err }
+	
+	mb.Cartridge = cart
+	mb.Bus.MapDevice(CARTRIDGE_START, cart)
+	fmt.Printf("Cartucho inserido: %s em 0x%X\n", path, CARTRIDGE_START)
+	return nil
 }

@@ -1,13 +1,30 @@
 package memory
 
+import (
+	"fmt"
+	"os"
+)
+
 type ROM struct {
 	data []Byte
+	Name string 
 }
 
-func NewROM(content []Byte) *ROM {
-	buf := make([]Byte, len(content))
-	copy(buf, content)
-	return &ROM{data: buf}
+func NewROMFromFile(path string) (*ROM, error) {
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("falha ao ler ROM %s: %w", path, err)
+	}
+
+	memBytes := make([]Byte, len(bytes))
+	for i, b := range bytes {
+		memBytes[i] = Byte(b)
+	}
+
+	return &ROM{
+		data: memBytes,
+		Name: path,
+	}, nil
 }
 
 func (r *ROM) Size() uint32 {
@@ -22,15 +39,5 @@ func (r *ROM) ReadByte(offset uint32) Byte {
 }
 
 func (r *ROM) WriteByte(offset uint32, _ Byte) {
-	// ROM: ignora a tentativa de escrita
-}
-
-func BootProgram() []Byte {
-	return []Byte{
-		0b10110011,
-		0b10000001,
-		0b00100000,
-		0b00000000,
-		// soma R1 + R2 -> R3
-	}
+	fmt.Printf("[WARN] Tentativa de escrita na ROM (Offset: 0x%X)\n", offset)
 }

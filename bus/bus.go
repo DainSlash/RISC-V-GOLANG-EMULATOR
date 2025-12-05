@@ -1,6 +1,8 @@
 package bus
 
-import "github.com/DainSlash/RISC-V-GOLANG-EMULATOR/memory"
+import (
+    "github.com/DainSlash/RISC-V-GOLANG-EMULATOR/memory"
+)
 
 type ReaderWriter interface {
     ReadByte(addr uint32) memory.Byte
